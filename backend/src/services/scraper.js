@@ -5,7 +5,7 @@ const Story = require("../models/Story");
 class hackerNewsScraper {
   async scrapeTopStories(limit = 10) {
     try {
-      const { data } = axios.get("https://news.ycombinator.com/");
+      const { data } = await axios.get("https://news.ycombinator.com/");
       const $ = cheerio.load(data);
       const stories = [];
 
@@ -16,21 +16,24 @@ class hackerNewsScraper {
         const $titleLine = $row.find(".titleline");
         const $subtext = $row.next("tr").find(".subtext");
         //Extract data
-        const title = $titleLine.find("a").first().trim();
+        const title = $titleLine.find("a").first().text().trim();
         const url = $titleLine.find("a").first().attr("href") || "";
         const hackerNewsId = $row.attr("id");
         const pointsText = $subtext.find(".score").text();
         const author = $subtext.find(".hnuser").text() || "unknown";
         const postedText = $subtext.find(".age").attr("title");
-        const postedAt = postedText ? new Date(postedText) : new Date();
 
+        const parsedDate = new Date(postedText);
+
+        const postedAt =
+          postedText && !isNaN(parsedDate) ? parsedDate : new Date();
         stories.push({
           title,
           url: url.startsWith("http")
             ? url
             : `https://news.ycombinator.com/${url}`,
           hackerNewsId,
-          points,
+          pointsText,
 
           author,
           postedAt,
@@ -51,4 +54,4 @@ class hackerNewsScraper {
     }
   }
 }
-module.exports = hackerNewsScraper;
+module.exports = new hackerNewsScraper();

@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const authRoutes = require("./routes/authRoutes.js");
+const storyRoutes = require("./routes/storyRoutes");
 
 const scapper = require("./services/scraper.js");
 const app = express();
